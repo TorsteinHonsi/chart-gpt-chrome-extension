@@ -16,8 +16,7 @@ const evaluateCode = (elem) => {
 
         const recurse = expression => {
           if (expression.type === 'ObjectExpression') {
-            const object = {};
-            expression.properties.forEach(property => {
+            return expression.properties.reduce((object, property) => {
               if (
                 property.value.type === 'ObjectExpression' ||
                 property.value.type === 'ArrayExpression'
@@ -26,12 +25,11 @@ const evaluateCode = (elem) => {
               } else if (property.value.type === 'Literal') {
                 object[property.key.name] = property.value.value;
               }
-            });
-            return object;
+              return object;
+            }, {});
 
           } else if (expression.type === 'ArrayExpression') {
-            const array = [];
-            expression.elements.forEach((element, i) => {
+            return expression.elements.reduce((array, element, i) => {
               if (
                 element.type === 'ObjectExpression' ||
                 element.type === 'ArrayExpression'
@@ -40,8 +38,8 @@ const evaluateCode = (elem) => {
               } else if (element.type === 'Literal') {
                 array[i] = element.value;
               }
-            });
-            return array;
+              return array;
+            }, []);
           }
         }
 
