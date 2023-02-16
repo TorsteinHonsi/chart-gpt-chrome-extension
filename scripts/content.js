@@ -2,21 +2,25 @@
 const evaluateCode = (elem) => {
   let code = elem.innerText;
 
-  const container = getContainer(elem);
-
-  // const regex = /Highcharts\.chart\('container', ([<>{}\/\n a-zA-Z:0-9',\.\[\]#\$%\-]+)\);/;
-  const regex = /Highcharts\.chart\('container', ([\s\S]+)\);/;
-
-  const match = code.match(regex);
+  const container = getContainer(elem),
+    regex = /Highcharts\.chart\('container', ([\s\S]+)\);/,
+    match = code.match(regex);
 
   if (container && match) {
     const sOptions = match[1];
     if (sOptions !== container.dataset.sOptions) {
-      const options = JSON5.parse(sOptions);
-      Highcharts.chart(container, options);
+      let options;
+      try {
+        // @todo JSON5 fails on inline function callbacks. As an alternative, it
+        // may be worth looking into JavaScript parsers like Esprima, Acorn, or
+        // UglifyJS.
+        options = JSON5.parse(sOptions);
+        Highcharts.chart(container, options);
+        onSuccessfulChart(container, elem);
+      } catch (e) {
+        console.log(e);
+      }
       container.dataset.sOptions = sOptions;
-
-      onSuccessfulChart(container, elem);
     }
   }
 }

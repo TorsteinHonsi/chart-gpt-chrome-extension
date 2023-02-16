@@ -13,8 +13,12 @@
     {
       "js": [
         "scripts/content.js",
-        "scripts/highcharts.js",
-        "scripts/json5.js"
+        "scripts/json5.js",
+
+        "scripts/highcharts/highcharts.js",
+        "scripts/highcharts/highcharts-more.js",
+        "scripts/highcharts/modules/exporting.js",
+        "scripts/highcharts/modules/offline-exporting.js"
       ],
       "matches": [
         "https://chat.openai.com/chat",
