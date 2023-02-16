@@ -1,28 +1,62 @@
 
 const evaluateCode = (elem) => {
-  let code = elem.innerText;
+  const code = elem.innerText,
+    container = getContainer(elem);
 
-  const container = getContainer(elem),
-    regex = /Highcharts\.chart\('container', ([\s\S]+)\);/,
-    match = code.match(regex);
+  if (container && code !== container.dataset.code) {
 
-  if (container && match) {
-    const sOptions = match[1];
-    if (sOptions !== container.dataset.sOptions) {
-      let options;
-      try {
-        // @todo JSON5 fails on inline function callbacks. As an alternative, it
-        // may be worth looking into JavaScript parsers like Esprima, Acorn, or
-        // UglifyJS.
-        options = JSON5.parse(sOptions);
-        Highcharts.chart(container, options);
+    try {
+      const tree = esprima.parseScript(code);
+
+      if (tree.body[0].expression.callee.object.name === 'Highcharts') {
+        // chart, stockChart, mapChart etc
+        const constructor = tree.body[0].expression.callee.property.name,
+          // The second argument is the options
+          optionsTree = tree.body[0].expression.arguments[1];
+
+        const recurse = expression => {
+          if (expression.type === 'ObjectExpression') {
+            const object = {};
+            expression.properties.forEach(property => {
+              if (
+                property.value.type === 'ObjectExpression' ||
+                property.value.type === 'ArrayExpression'
+              ) {
+                object[property.key.name] = recurse(property.value);
+              } else if (property.value.type === 'Literal') {
+                object[property.key.name] = property.value.value;
+              }
+            });
+            return object;
+
+          } else if (expression.type === 'ArrayExpression') {
+            const array = [];
+            expression.elements.forEach((element, i) => {
+              if (
+                element.type === 'ObjectExpression' ||
+                element.type === 'ArrayExpression'
+              ) {
+                array[i] = recurse(element);
+              } else if (element.type === 'Literal') {
+                array[i] = element.value;
+              }
+            });
+            return array;
+          }
+        }
+
+        const options = recurse(optionsTree);
+
+        Highcharts[constructor](container, options);
         onSuccessfulChart(container, elem);
-      } catch (e) {
-        console.log(e);
       }
-      container.dataset.sOptions = sOptions;
+    } catch (e) {
+      console.log(e);
     }
+
+    container.dataset.code = code;
   }
+
 }
 
 const onSuccessfulChart = (container, codeElem) => {

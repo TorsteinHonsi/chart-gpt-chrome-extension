@@ -13,7 +13,7 @@
     {
       "js": [
         "scripts/content.js",
-        "scripts/json5.js",
+        "scripts/esprima.js",
 
         "scripts/highcharts/highcharts.js",
         "scripts/highcharts/highcharts-more.js",
