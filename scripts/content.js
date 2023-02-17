@@ -60,11 +60,14 @@ const evaluateCode = async (elem) => {
 const loadMap = async (options) => {
   const map = options.chart?.map;
   if (typeof map === 'string' && /^[a-z\-\/]+$/.test(map)) {
-    const topology = await fetch(
-      `https://code.highcharts.com/mapdata/${map}.topo.json`
-    ).then(response => response.json());
-    if (topology) {
-      options.chart.map = topology;
+    try {
+      const url = `https://code.highcharts.com/mapdata/${map}.topo.json`;
+      const topology = await fetch(url).then(response => response.json());
+      if (topology) {
+        options.chart.map = topology;
+      }
+    } catch {
+      console.log('@loadMap', `could not load ${url}`);
     }
   }
 }
