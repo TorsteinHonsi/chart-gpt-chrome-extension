@@ -19,6 +19,7 @@
         "scripts/highcharts/highcharts-more.js",
         "scripts/highcharts/modules/accessibility.js",
         "scripts/highcharts/modules/exporting.js",
+        "scripts/highcharts/modules/map.js",
         "scripts/highcharts/modules/offline-exporting.js",
         "scripts/highcharts/modules/stock.js"
       ],

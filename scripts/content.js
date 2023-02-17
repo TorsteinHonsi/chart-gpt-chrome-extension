@@ -1,5 +1,4 @@
-
-const evaluateCode = (elem) => {
+const evaluateCode = async (elem) => {
   const code = elem.innerText,
     container = getContainer(elem);
 
@@ -110,8 +109,11 @@ const getContainer = (codeElem) => {
 }
 
 setInterval(
-  () => {
-    [...document.querySelectorAll('code')].forEach(elem => evaluateCode(elem))
+  async () => {
+    const codeElems = document.querySelectorAll('code');
+    for (let elem of codeElems) {
+      await evaluateCode(elem);
+    }
   },
   1000
 );
