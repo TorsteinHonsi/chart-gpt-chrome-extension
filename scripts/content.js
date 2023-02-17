@@ -44,6 +44,8 @@ const evaluateCode = async (elem) => {
 
         const options = recurse(optionsTree);
 
+        await loadMap(options);
+
         Highcharts[constructor](container, options);
         onSuccessfulChart(container, elem);
       }
@@ -53,7 +55,17 @@ const evaluateCode = async (elem) => {
 
     container.dataset.code = code;
   }
+}
 
+const loadMap = async (options) => {
+  if (/^[a-z\-\/]+$/.test(options.chart?.map)) {
+    const topology = await fetch(
+      `https://code.highcharts.com/mapdata/${options.chart.map}.topo.json`
+    ).then(response => response.json());
+    if (topology) {
+      options.chart.map = topology;
+    }
+  }
 }
 
 const onSuccessfulChart = (container, codeElem) => {
