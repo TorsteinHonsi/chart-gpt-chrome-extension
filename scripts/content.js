@@ -58,9 +58,10 @@ const evaluateCode = async (elem) => {
 }
 
 const loadMap = async (options) => {
-  if (/^[a-z\-\/]+$/.test(options.chart?.map)) {
+  const map = options.chart?.map;
+  if (typeof map === 'string' && /^[a-z\-\/]+$/.test(map)) {
     const topology = await fetch(
-      `https://code.highcharts.com/mapdata/${options.chart.map}.topo.json`
+      `https://code.highcharts.com/mapdata/${map}.topo.json`
     ).then(response => response.json());
     if (topology) {
       options.chart.map = topology;
