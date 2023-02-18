@@ -98,6 +98,22 @@ const onSuccessfulChart = (container, codeElem) => {
   copyBtn.parentElement.insertBefore(viewBtn, copyBtn);
 }
 
+// Override some ChatGPT styles
+document.styleSheets[0].insertRule(
+  `.markdown .highcharts-container ul li:before {
+    content: "";
+    font-size: inherit;
+    line-height: inherit;
+    margin-left: 0;
+    position: static;
+  }`
+);
+document.styleSheets[0].insertRule(
+  `.highcharts-menu hr {
+    margin: 0;
+  }`
+);
+
 const getContainer = (codeElem) => {
   const pre = codeElem.closest('pre');
 
@@ -115,6 +131,7 @@ const getContainer = (codeElem) => {
     container.style.left = 0;
     container.style.bottom = 0;
     container.style.transition = 'height 250ms';
+    container.style.fontFamily = 'Arial, sans-serif';
     container.className = 'container';
 
     pre.appendChild(container);

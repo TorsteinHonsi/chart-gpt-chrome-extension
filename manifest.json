@@ -24,7 +24,6 @@
         "scripts/highcharts/modules/gantt.js",
 
         "scripts/highcharts/modules/exporting.js",
-        "scripts/highcharts/modules/export-data.js",
         "scripts/highcharts/modules/parallel-coordinates.js",
         "scripts/highcharts/modules/accessibility.js",
         "scripts/highcharts/modules/annotations-advanced.js",
