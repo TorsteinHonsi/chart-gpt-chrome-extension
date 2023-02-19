@@ -1,13 +1,23 @@
 const evaluateCode = async (elem) => {
   const code = elem.innerText,
-    container = getContainer(elem);
+    container = getContainer(elem),
+    hasHighcharts = /Highcharts/i.test(code);
 
-  if (container && code !== container.dataset.code) {
+  if (hasHighcharts && container && code !== container.dataset.code) {
+
+    const island = createInfoIsland(elem),
+      log = [];
+
+    let tree;
 
     try {
-      const tree = esprima.parseScript(code);
+      tree = esprima.parseScript(code);
+    } catch (e) {
+      log.push(`Could not parse the code. ${e.description}`);
+    }
 
-      if (tree.body[0].expression.callee.object.name === 'Highcharts') {
+    try {
+      if (tree && tree.body[0].expression.callee.object.name === 'Highcharts') {
         // chart, stockChart, mapChart etc
         const constructor = tree.body[0].expression.callee.property.name,
           // The second argument is the options
@@ -50,8 +60,10 @@ const evaluateCode = async (elem) => {
         onSuccessfulChart(container, elem);
       }
     } catch (e) {
-      console.log(e);
+      log.push(e);
     }
+
+    console.log('log', log)
 
     container.dataset.code = code;
   }
@@ -72,6 +84,27 @@ const loadMap = async (options) => {
   }
 }
 
+const createInfoIsland = (codeElem) => {
+  const pre = codeElem.closest('pre'),
+    copyBtn = pre?.querySelector('button');
+  let island = pre?.querySelector('.info-island');
+
+  if (pre && !island) {
+    island = document.createElement('div');
+    island.className = 'info-island';
+    island.style.position = 'absolute';
+    island.style.right = '8rem';
+    island.style.border = '1px solid gray';
+    island.style.padding = '0 1rem';
+    island.style.borderRadius = '0.6rem'
+    // const url = chrome.runtime.getURL('images/icon.png');
+    // island.style.backgroundImage = `url("${url}")`;
+
+    copyBtn.parentElement.insertBefore(island, copyBtn);
+  }
+  return island;
+}
+
 const onSuccessfulChart = (container, codeElem) => {
   // Constrain the size so we don't get too tall charts
   const parent = codeElem.parentElement;
@@ -79,13 +112,10 @@ const onSuccessfulChart = (container, codeElem) => {
   const height = `calc(${parent.offsetHeight}px + 1rem)`;
   container.style.height = height;
 
-  const pre = codeElem.closest('pre'),
-    copyBtn = pre?.querySelector('button');
+  const pre = codeElem.closest('pre');
 
   const viewBtn = document.createElement('button');
   viewBtn.innerText = 'View code';
-  viewBtn.style.position = 'absolute';
-  viewBtn.style.right = '8rem';
   viewBtn.onclick = function () {
     if (this.innerText === 'View code') {
       container.style.height = 0;
@@ -95,7 +125,7 @@ const onSuccessfulChart = (container, codeElem) => {
       this.innerText = 'View code';
     }
   }
-  copyBtn.parentElement.insertBefore(viewBtn, copyBtn);
+  pre.querySelector('.info-island').appendChild(viewBtn);
 }
 
 // Override some ChatGPT styles

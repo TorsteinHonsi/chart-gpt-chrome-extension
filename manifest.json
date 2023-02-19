@@ -80,5 +80,9 @@
         "https://chat.openai.com/chat/*"
       ]
     }
-  ]
+  ],
+  "web_accessible_resources": [{
+    "resources": ["images/icon.png"],
+    "matches": []
+  }]
 }
