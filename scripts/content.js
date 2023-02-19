@@ -40,35 +40,49 @@ const evaluateCode = async (elem) => {
           // The second argument is the options
           optionsTree = tree.body[0].expression.arguments[1];
 
+        const handleChild = (owner, child, key) => {
+          if (
+            child.type === 'ObjectExpression' ||
+            child.type === 'ArrayExpression'
+          ) {
+            owner[key] = recurse(child);
+
+          // Strings, numbers etc
+          } else if (child.type === 'Literal') {
+            owner[key] = child.value;
+
+          // Date.UTC calls are pretty common in Highcharts configs
+          } else if (
+            child.type === 'CallExpression' &&
+            child.callee.object.name === 'Date' &&
+            child.callee.property.name === 'UTC'
+          ) {
+            owner[key] = Date.UTC.apply(
+              Date,
+              child.arguments.map(arg => arg.value)
+            );
+
+          // Formatters and event callbacks
+          } else if (child.type === 'FunctionExpression') {
+            log.push(`Detected function expression for "${key}". Because of \
+              Google Extensions security policies, this cannot be recreated in \
+              the preview, and is left out.`);
+
+          } else {
+            console.log('Unknown child type', child);
+          }
+        }
+
         const recurse = expression => {
           if (expression.type === 'ObjectExpression') {
             return expression.properties.reduce((object, property) => {
-              if (
-                property.value.type === 'ObjectExpression' ||
-                property.value.type === 'ArrayExpression'
-              ) {
-                object[property.key.name] = recurse(property.value);
-              } else if (property.value.type === 'Literal') {
-                object[property.key.name] = property.value.value;
-              } else if (property.value.type === 'FunctionExpression') {
-                log.push(`Detected function expression for \
-                  "${property.key.name}". Because of Google Extensions \
-                  security policies, this cannot be recreated in the preview, \
-                  and is left out.`);
-              }
+              handleChild(object, property.value, property.key.name);
               return object;
             }, {});
 
           } else if (expression.type === 'ArrayExpression') {
             return expression.elements.reduce((array, element, i) => {
-              if (
-                element.type === 'ObjectExpression' ||
-                element.type === 'ArrayExpression'
-              ) {
-                array[i] = recurse(element);
-              } else if (element.type === 'Literal') {
-                array[i] = element.value;
-              }
+              handleChild(array, element, i);
               return array;
             }, []);
           }
