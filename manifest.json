@@ -83,6 +83,8 @@
   ],
   "web_accessible_resources": [{
     "resources": ["images/icon.png"],
-    "matches": []
+    "matches": [
+      "https://chat.openai.com/*"
+    ]
   }]
 }

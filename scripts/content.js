@@ -130,10 +130,14 @@ const createInfoIsland = (codeElem) => {
     island.style.position = 'absolute';
     island.style.right = '8rem';
     island.style.border = '1px solid gray';
-    island.style.padding = '0 1rem';
-    island.style.borderRadius = '0.6rem'
-    // const url = chrome.runtime.getURL('images/icon.png');
-    // island.style.backgroundImage = `url("${url}")`;
+    island.style.padding = '0.2rem 0.5rem 0 1rem';
+    island.style.borderRadius = '0.75rem'
+    island.style.height = '1.5rem';
+    const url = chrome.runtime.getURL('images/icon.png');
+    island.style.backgroundImage = `url("${url}")`;
+    island.style.backgroundSize = '1rem 1rem';
+    island.style.backgroundPosition = '0.4rem 0.2rem';
+    island.style.backgroundRepeat = 'no-repeat';
 
     copyBtn.parentElement.insertBefore(island, copyBtn);
   }
