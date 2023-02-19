@@ -109,6 +109,7 @@ const createLog = (island, log) => {
 
   if (!btn) {
     btn = document.createElement('button');
+    btn.className = 'log-btn';
     // Insert before the view code button
     island.insertBefore(btn, island.querySelector('button'));
   }
