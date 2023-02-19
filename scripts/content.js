@@ -131,7 +131,7 @@ const createInfoIsland = (codeElem) => {
     island.style.position = 'absolute';
     island.style.right = '8rem';
     island.style.border = '1px solid gray';
-    island.style.padding = '0.2rem 0.5rem 0 1rem';
+    island.style.padding = '0.2rem 0.7rem 0 1rem';
     island.style.borderRadius = '0.75rem'
     island.style.height = '1.5rem';
     const url = chrome.runtime.getURL('images/icon.png');
@@ -158,10 +158,10 @@ const onSuccessfulChart = (container, codeElem) => {
   viewBtn.innerText = 'View code';
   viewBtn.onclick = function () {
     if (this.innerText === 'View code') {
-      container.style.height = 0;
+      container.style.left = '100%';
       this.innerText = 'View chart';
     } else {
-      container.style.height = height;
+      container.style.left = 0;
       this.innerText = 'View code';
     }
   }
@@ -201,11 +201,13 @@ const getContainer = (codeElem) => {
   if (!container) {
 
     pre.style.position = 'relative';
+    pre.style.overflowX = 'clip';
+
     container = document.createElement('div');
     container.style.position = 'absolute';
     container.style.left = 0;
-    container.style.bottom = 0;
-    container.style.transition = 'height 250ms';
+    container.style.top = '2rem';
+    container.style.transition = 'left 250ms';
     container.style.fontFamily = 'Arial, sans-serif';
     container.className = 'container';
 

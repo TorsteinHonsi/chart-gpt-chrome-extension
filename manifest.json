@@ -11,6 +11,9 @@
   },
   "content_scripts": [
     {
+      "css": [
+        "styles/highcharts.css"
+      ],
       "js": [
         "scripts/content.js",
         "scripts/esprima.js",
