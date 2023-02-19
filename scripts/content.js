@@ -1,10 +1,16 @@
 const evaluateCode = async (elem) => {
-  const code = elem.innerText,
-    container = getContainer(elem),
+
+  let code = elem.innerText;
+
+  // Only options object given by ChatGPT
+  if (/^{[\s]+chart: {/.test(code)) {
+    code = `Highcharts.chart('container', ${code})`;
+  }
+
+  const container = getContainer(elem),
     hasHighcharts = /Highcharts/i.test(code);
 
   if (hasHighcharts && container && code !== container.dataset.code) {
-
     const island = createInfoIsland(elem),
       log = [];
 
