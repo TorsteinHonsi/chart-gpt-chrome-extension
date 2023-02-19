@@ -5,6 +5,13 @@ const evaluateCode = async (elem) => {
   // Only options object given by ChatGPT
   if (/^{[\s]+chart: {/.test(code)) {
     code = `Highcharts.chart('container', ${code})`;
+
+  // Full HTML page given by ChatGPT
+  } else if (/<script>/.test(code)) {
+    code = code.replace(
+      /^[\s\S]+<script>([\s\S]+)<\/script>[\s\S]+$/,
+      '$1'
+    );
   }
 
   const container = getContainer(elem),
