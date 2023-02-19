@@ -19,11 +19,15 @@ const evaluateCode = async (elem) => {
     try {
       tree = esprima.parseScript(code);
     } catch (e) {
-      log.push(`Could not parse the code. ${e.description}`);
+      if (e.description === 'Unexpected end of input') {
+        log.push(`Could not parse the code (${e.description}). This usually \
+        means either that the response is still loading incrementally, or that \
+        the response was aborted. Try asking again, or "Regenerate response".`);
+      }
     }
 
     try {
-      if (tree && tree.body[0].expression.callee.object.name === 'Highcharts') {
+      if (tree && tree.body[0].expression.callee?.object.name === 'Highcharts') {
         // chart, stockChart, mapChart etc
         const constructor = tree.body[0].expression.callee.property.name,
           // The second argument is the options
@@ -39,6 +43,11 @@ const evaluateCode = async (elem) => {
                 object[property.key.name] = recurse(property.value);
               } else if (property.value.type === 'Literal') {
                 object[property.key.name] = property.value.value;
+              } else if (property.value.type === 'FunctionExpression') {
+                log.push(`Detected function expression for \
+                  "${property.key.name}". Because of Google Extensions \
+                  security policies, this cannot be recreated in the preview, \
+                  and is left out.`);
               }
               return object;
             }, {});
@@ -64,12 +73,17 @@ const evaluateCode = async (elem) => {
 
         Highcharts[constructor](container, options);
         onSuccessfulChart(container, elem);
+      } else if (tree) {
+        log.push('We detected Highcharts on this page, but were unable to \
+          create a preview. Probably the suggested code is too complex. Try \
+          asking ChatGPT in a different way. Try starting your request by \
+          "Create a Highcharts configuration for ...".');
       }
     } catch (e) {
       log.push(e);
     }
 
-    console.log('log', log)
+    createLog(island, log);
 
     container.dataset.code = code;
   }
@@ -88,6 +102,21 @@ const loadMap = async (options) => {
       console.log('@loadMap', `could not load ${url}`);
     }
   }
+}
+
+const createLog = (island, log) => {
+  let btn = island.querySelector('.log-btn');
+
+  if (!btn) {
+    btn = document.createElement('button');
+    // Insert before the view code button
+    island.insertBefore(btn, island.querySelector('button'));
+  }
+  btn.innerText = `Log (${log.length})`;
+  btn.style.display = log.length ? '' : 'none';
+
+  btn.onclick = () => alert('• ' + log.join('\n\n• ').replace(/[ ]+/g, ' '));
+
 }
 
 const createInfoIsland = (codeElem) => {
@@ -147,6 +176,11 @@ document.styleSheets[0].insertRule(
 document.styleSheets[0].insertRule(
   `.highcharts-menu hr {
     margin: 0;
+  }`
+);
+document.styleSheets[0].insertRule(
+  `.info-island button {
+    margin-left: 1rem;
   }`
 );
 
